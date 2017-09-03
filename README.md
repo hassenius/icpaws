@@ -26,7 +26,7 @@ To kick off installing the ICp cluster, edit variables.tf and replace 'xxx..' wi
 | aws\_ami | ami\-cd0f5cb6 | AMI id for the template in the region that will be used |
 | instance\_type | t2.medium | Instance size |
 | instance\_name | eicp | Prefix for the instances |
-| disk\_size | 100 | Size of the root partition |
+| disk\_size | 50 | Size of the root partition in GB |
 | nodeuserid | ubuntu | UserID to be used to login to the instance |
 | icpuser | admin | UserID for ICp to login |
 | icppassword | xxxxxxxxx | Password for the ICp user |
