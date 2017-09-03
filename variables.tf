@@ -1,28 +1,27 @@
-variable "access_key" { default = "ur_accesskey" }
-variable "secret_key" { default = "ur_secretkey" }
-variable "aws_region" {  default     = "us-east-1" }
+variable "access_key" { default = "xxxxxxx" }
+variable "secret_key" { default = "xxxxxx" }
+variable "aws_region" {  default     = "xxxxxxx" }
 
 # SSH Key
-variable "mypublickey" { default = "ur_public_key" }
-variable "myprivatekey" { default = "ur_private_key" }
+variable "mypublickey" { default = "xxxxxxx" }
+variable "myprivatekey" { default = "xxxxxxx" }
 
 # VPC Details
-variable "vpcname" { default = "icpvpc" }
-variable "cidr" { default = "192.168.0.0/16" }
+variable "vpcname" { default = "xxxxxxx" }
+variable "cidr" { default = "xxxxxxx" }
 
 # Subnet Details
-variable "subnetname" { default = "icpprivsubnet" }
-variable "subnet_cidr" {default = "192.168.1.0/24" }
+variable "subnetname" { default = "xxxxxxx" }
+variable "subnet_cidr" {default = "xxxxxxx" }
 
 # AMIs details for Ubuntu 16.04 LTS
-#variable "aws_amis" { default = "ami-e69d0ff0" }
-variable "aws_ami" { default = "ami-cd0f5cb6" }
-variable "instance_type" { default = "t2.medium" }
-variable "instance_name" { default = "eicp" }
-variable "disk_size" { default = 50 }
-variable "nodeuserid" { default = "ubuntu" }
-variable "icpuser" { default = "admin" }
-variable "icppassword" { default = "ibmISgre@t" }
+variable "aws_ami" { default = "xxxxxxx" }
+variable "instance_type" { default = "xxxxxxx" }
+variable "instance_name" { default = "xxxxxxx" }
+variable "disk_size" { default = xxxxxxx }
+variable "nodeuserid" { default = "xxxxxxx" }
+variable "icpuser" { default = "xxxxxxx" }
+variable "icppassword" { default = "ixxxxxxx" }
 
-# ICp node count
-variable "nodecount" { default = 3 }
+# ICp node count other master node. If number is 3, four nodes will be created
+variable "nodecount" { default = xxxxxxx }
