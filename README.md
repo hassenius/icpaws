@@ -42,15 +42,15 @@ To kick off installing the ICp cluster, edit variables.tf and replace 'xxx..' wi
 Example:
 ibm-cloud-private-installer-1.2.0.tar.gz  ibm-cloud-private-x86_64-1.2.0.tar.gz  icpinst.zip aws.tf awskey.tf vpc.tf public_subnet.tf internet_gateway.tf icp_route.tf icp_def_sg.tf variables.tf instances.tf
 ```
-- Initialize terraform
-   terraform init
-- Test the temaples
-  terraform plan
-- Deploy the Product
-  terraform apply
-- Delete
-  terraform destroy -force ( from same directory where apply was run )
-- Show the outputs
-  terraform output ( may have to run terraform refresh )
+- Initialize terraform  
+   ***terraform init***
+- Test the temaples  
+  ***terraform plan***
+- Deploy the Product  
+  ***terraform apply*** 
+- Delete  
+  ***terraform destroy -force ( from same directory where apply was run )***
+- Show the outputs  
+  ***terraform output ( may have to run terraform refresh )***
   
  ** End **
