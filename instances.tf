@@ -1,108 +1,95 @@
-resource "aws_instance" "icpnodes" {
-  count = "${ var.nodecount }"
-  ami = "${ var.aws_ami }"
-  instance_type = "${ var.instance_type }"
-  subnet_id = "${ aws_subnet.icp_public_subnet.id }"
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
-  key_name = "icpd-key"
-  root_block_device {
-        volume_size = "${var.disk_size}"
-  }
-  tags { Name = "${format("${var.instance_name}node_%01d", count.index + 1) }" }
-  user_data = <<EOF
-#!/bin/bash
-if grep -q -i ubuntu /etc/*release
-then
-  sudo apt-get -y install unzip
-else
-  sudo yum -y install unzip
-fi
-EOF
-}
-
 resource "aws_instance" "icpmaster" {
-  ami = "${ var.aws_ami }"
-  instance_type = "${ var.instance_type }"
-  subnet_id = "${ aws_subnet.icp_public_subnet.id }"
+  count         = "${var.master["nodes"]}"
+  key_name      = "${var.key_name}"
+  ami           = "${var.master["ami"]}"
+  instance_type = "${var.master["type"]}"
+  subnet_id     = "${aws_subnet.icp_public_subnet.id}"
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
-  key_name = "icpd-key"
+  
   root_block_device {
-        volume_size = "${var.disk_size}"
+    volume_size = "${var.master["disk"]}"
   }
-  tags { Name = "${format("${var.instance_name}master") }" }
+  tags { 
+    Name = "${format("${var.instance_name}-master%1d", count.index + 1) }" 
+  }
   user_data = <<EOF
 #!/bin/bash
-if grep -q -i ubuntu /etc/*release
-then
-  sudo apt-get -y install unzip
-else
-  sudo yum -y install unzip
-fi
+echo "${format("${var.instance_name}-master%1d", count.index + 1)}" > /etc/hostname
+hostname ${format("${var.instance_name}-master%1d", count.index + 1)}
 EOF
-
-#copies the file from terraform machine and copies to EndPoint /tmp directory
-  provisioner "file" {
-      source = "${var.myprivatekey}"
-      destination = "/tmp/icpsshkey"
-      connection {
-              type = "ssh"
-              user = "${ var.nodeuserid }"
-              private_key = "${file(var.myprivatekey)}"
-       }
-  }
-  provisioner "file" {
-      source = "./icpinst.zip"
-      destination = "/tmp/icpinst.zip"
-      connection {
-              type = "ssh"
-              user = "${ var.nodeuserid }"
-              private_key = "${file(var.myprivatekey)}"
-       }
-  }
-  provisioner "file" {
-      source = "ibm-cloud-private-installer-1.2.0.tar.gz"
-      destination = "/tmp/ibm-cloud-private-installer-1.2.0.tar.gz"
-      #source = "./IBM_CLOUD_PRIVATE_1.2.1_INSTALLER.tar.gz"
-      #destination = "/tmp/IBM_CLOUD_PRIVATE_1.2.1_INSTALLER.tar.gz"
-      connection {
-              type = "ssh"
-              user = "${ var.nodeuserid }"
-              private_key = "${file(var.myprivatekey)}"
-       }
-  }
-  provisioner "file" {
-      source = "ibm-cloud-private-x86_64-1.2.0.tar.gz"
-      destination = "/tmp/ibm-cloud-private-x86_64-1.2.0.tar.gz"
-      #source = "./IBM_CLOUD_PRIVATE_1.2.1_LNX_DOCKE.tar.gz"
-      #destination = "/tmp/IBM_CLOUD_PRIVATE_1.2.1_LNX_DOCKE.tar.gz"
-      connection {
-              type = "ssh"
-              user = "${ var.nodeuserid }"
-              private_key = "${file(var.myprivatekey)}"
-       }
-  }
-#Executes the script on EndPoint
-  provisioner "remote-exec" {
-      inline = [
-                  "echo '${join(",", aws_instance.icpnodes.*.private_ip)}' > /tmp/test.txt",
-                  "echo '${join(",", aws_instance.icpnodes.*.private_dns)}' > /tmp/test1.txt",
-                  "echo ${aws_instance.icpmaster.private_ip} > /tmp/masterip.txt",
-                  "mkdir -p /tmp/icpinstall; cd /tmp/icpinstall; unzip -q ../icpinst.zip; chmod 755 *; sudo ./masterinstall.sh ${ var.icpuser } ${ var.icppassword } ${ var.nodeuserid }",
-                  "./postinstall.sh ${ var.nodeuserid }",
-                  "sudo docker run -e LICENSE=accept --net=host -v /usr/local/bin:/data ibmcom/kubernetes:v1.6.1-ee cp /kubectl /data"
-        ]
-        connection {
-                type = "ssh"
-                user = "${ var.nodeuserid }"
-                private_key = "${file(var.myprivatekey)}"
-       }
-  }
 }
 
-output "address" {
-  value = "${aws_instance.icpmaster.public_ip.dns}"
+
+resource "aws_instance" "icpproxy" {
+  count         = "${var.proxy["nodes"]}"
+  key_name      = "${var.key_name}"
+  ami           = "${var.proxy["ami"]}"
+  instance_type = "${var.proxy["type"]}"
+  subnet_id     = "${aws_subnet.icp_public_subnet.id}"
+  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  
+  root_block_device {
+    volume_size = "${var.proxy["disk"]}"
+  }
+  tags { 
+    Name = "${format("${var.instance_name}-proxy%1d", count.index + 1) }" 
+  }
+  user_data = <<EOF
+#!/bin/bash
+echo "${format("${var.instance_name}-proxy%1d", count.index + 1)}" > /etc/hostname
+hostname ${format("${var.instance_name}-proxy%1d", count.index + 1)}
+EOF
 }
 
-output "ICpURL" {
-  value = "http://${aws_instance.icpmaster.public_ip.dns}:8443"
+resource "aws_instance" "icpnodes" {
+  count         = "${var.worker["nodes"]}"
+  key_name      = "${var.key_name}"
+  ami           = "${var.worker["ami"]}"
+  instance_type = "${var.worker["type"]}"
+  subnet_id     = "${aws_subnet.icp_public_subnet.id}"
+  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  
+  root_block_device {
+    volume_size = "${var.worker["disk"]}"
+  }
+  tags { 
+    Name = "${format("${var.instance_name}-worker%01d", count.index + 1) }" 
+  }
+  user_data = <<EOF
+#!/bin/bash
+echo "${format("${var.instance_name}-worker%1d", count.index + 1)}" > /etc/hostname
+hostname ${format("${var.instance_name}-worker%1d", count.index + 1)}
+EOF
 }
+
+
+module "icpprovision" {
+    source = "github.com/ibm-cloud-architecture/terraform-module-icp-deploy"
+    icp-master = ["${aws_instance.icpmaster.public_ip}"]
+    icp-worker = ["${aws_instance.icpnodes.*.public_ip}"]
+    icp-proxy = ["${aws_instance.icpproxy.*.public_ip}"]
+    
+    icp-version = "ibmcom/icp-inception:2.1.0"
+
+    /* Workaround for terraform issue #10857
+     When this is fixed, we can work this out autmatically */
+    cluster_size  = "${var.master["nodes"] + var.worker["nodes"] + var.proxy["nodes"]}"
+
+    icp_configuration = {
+      "network_cidr"              = "192.168.0.0/16"
+      "service_cluster_ip_range"  = "172.16.0.1/24"
+      "default_admin_password"    = "${var.icppassword}"
+    }
+
+    # We will let terraform generate a new ssh keypair 
+    # for boot master to communicate with worker and proxy nodes
+    # during ICP deployment
+    generate_key = true
+    
+    # SSH user and key for terraform to connect to newly created SoftLayer resources
+    # ssh_key is the private key corresponding to the public keyname specified in var.key_name
+    ssh_user  = "ubuntu"
+    ssh_key   = "${var.privatekey}"
+    
+} 
+
