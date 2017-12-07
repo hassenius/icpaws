@@ -1,4 +1,4 @@
-# Terraform ICP SoftLayer
+# Terraform ICP Amazon Web Services
 
 These TerraForm example templates uses the [AWS Provider](https://www.terraform.io/docs/providers/aws/) to provision networks and servers in AWS
 and [TerraForm Module ICP Deploy](https://github.com/ibm-cloud-architecture/terraform-module-icp-deploy) to deploy [IBM Cloud Private](https://www.ibm.com/cloud-computing/products/ibm-cloud-private/) on them.
