@@ -27,16 +27,13 @@ variable "cidr" { default = "10.10.0.0/16" }
 variable "subnetname" { default = "	icpsubnet" }
 variable "subnet_cidr" {default = "10.10.0.0/24" }
 
-# AMIs details for Ubuntu 16.04 LTS
-variable "aws_ami" { default = "ami-336b4456" }
-
 # EC2 instances
 variable "master" {
   type = "map"
   default = {
     nodes     = "1"
     type      = "t2.xlarge"
-    ami       = "ami-336b4456" // Ubuntu 16.04
+    ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "100" //GB
   }
 }
@@ -45,7 +42,7 @@ variable "proxy" {
   default = {
     nodes     = "1"
     type      = "t2.small"
-    ami       = "ami-336b4456" // Ubuntu 16.04
+    ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "25" //GB
   }
 }
@@ -54,7 +51,7 @@ variable "worker" {
   default = {
     nodes     = "2"
     type      = "t2.medium"
-    ami       = "ami-336b4456" // Ubuntu 16.04
+    ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "100" //GB
   }
 }

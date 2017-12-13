@@ -1,7 +1,34 @@
+## Search for a default Ubuntu image to allow this option
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "image-type"
+    values = ["machine"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+  }
+  
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
 resource "aws_instance" "icpmaster" {
   count         = "${var.master["nodes"]}"
   key_name      = "${var.key_name}"
-  ami           = "${var.master["ami"]}"
+  ami           = "${var.master["ami"] != "" ? var.master["ami"] : data.aws_ami.ubuntu.id }"
   instance_type = "${var.master["type"]}"
   subnet_id     = "${aws_subnet.icp_public_subnet.id}"
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
@@ -23,7 +50,7 @@ EOF
 resource "aws_instance" "icpproxy" {
   count         = "${var.proxy["nodes"]}"
   key_name      = "${var.key_name}"
-  ami           = "${var.proxy["ami"]}"
+  ami           = "${var.proxy["ami"] != "" ? var.proxy["ami"] : data.aws_ami.ubuntu.id }"
   instance_type = "${var.proxy["type"]}"
   subnet_id     = "${aws_subnet.icp_public_subnet.id}"
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
@@ -44,7 +71,7 @@ EOF
 resource "aws_instance" "icpnodes" {
   count         = "${var.worker["nodes"]}"
   key_name      = "${var.key_name}"
-  ami           = "${var.worker["ami"]}"
+  ami           = "${var.worker["ami"] != "" ? var.worker["ami"] : data.aws_ami.ubuntu.id }"
   instance_type = "${var.worker["type"]}"
   subnet_id     = "${aws_subnet.icp_public_subnet.id}"
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
