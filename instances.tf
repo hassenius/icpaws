@@ -91,7 +91,7 @@ EOF
 
 
 module "icpprovision" {
-    source = "github.com/ibm-cloud-architecture/terraform-module-icp-deploy"
+    source = "github.com/ibm-cloud-architecture/terraform-module-icp-deploy.git?ref=1.0.0"
     icp-master = ["${aws_instance.icpmaster.public_ip}"]
     icp-worker = ["${aws_instance.icpnodes.*.public_ip}"]
     icp-proxy = ["${aws_instance.icpproxy.*.public_ip}"]
